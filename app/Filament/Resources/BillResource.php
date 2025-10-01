@@ -118,7 +118,7 @@ class BillResource extends Resource
                         Forms\Components\Repeater::make('items')
                             ->relationship('items')
                             ->schema([
-                                Forms\Components\Select::make('item_type')
+                                /*Forms\Components\Select::make('item_type')
                                     ->label('Type')
                                     ->options([
                                         'product' => 'Produit',
@@ -126,7 +126,7 @@ class BillResource extends Resource
                                     ])
                                     ->default('product')
                                     ->required()
-                                    ->columnSpan(1),
+                                    ->columnSpan(1),*/
                                 Forms\Components\Select::make('product_id')
                                     ->label('Produit')
                                     ->relationship('product', 'name', fn ($query) => $query->where('is_active', true))
@@ -244,7 +244,7 @@ class BillResource extends Resource
                                     })
                                     ->columnSpan(1),
                             ])
-                            ->columns(9)
+                            ->columns(5)
                             ->minItems(1)
                             ->defaultItems(1)
                             ->addActionLabel('Ajouter une ligne')
