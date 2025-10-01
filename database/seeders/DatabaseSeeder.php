@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             AccountSeeder::class,
             TaxSeeder::class,
             JournalSeeder::class,
+            PaymentMethodSeeder::class,
         ]);
     }
 }
