@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             FiscalYearSeeder::class,
             AccountSeeder::class,
             TaxSeeder::class,
+            JournalSeeder::class,
         ]);
     }
 }
