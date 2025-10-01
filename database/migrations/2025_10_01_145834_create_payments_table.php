@@ -24,7 +24,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('payment_number');
-            $table->index(['paymentable_type', 'paymentable_id']);
+            $table->index(['paymentable_type', 'paymentable_id'], 'idx_paymentable');
             $table->index('payment_date');
         });
     }
