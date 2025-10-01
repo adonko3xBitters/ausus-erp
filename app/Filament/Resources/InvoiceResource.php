@@ -128,6 +128,57 @@ class InvoiceResource extends Resource
                                     ->default('product')
                                     ->required()
                                     ->columnSpan(1),
+                                Forms\Components\Select::make('product_id')
+                                    ->label('Produit')
+                                    ->relationship('product', 'name', fn ($query) => $query->where('is_active', true))
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->sku} - {$record->name}")
+                                    ->searchable(['sku', 'name'])
+                                    ->preload()
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if ($state) {
+                                            $product = \App\Models\Product::find($state);
+                                            $set('description', $product->name);
+                                            $set('unit_price', $product->sale_price);
+                                            $set('tax_id', $product->sale_tax_id);
+                                            $set('unit', $product->unit->short_name);
+
+                                            // Charger les variantes si le produit en a
+                                            if ($product->has_variants) {
+                                                $set('has_variants', true);
+                                            } else {
+                                                $set('has_variants', false);
+                                                $set('product_variant_id', null);
+                                            }
+                                        }
+                                    })
+                                    ->columnSpan(2),
+
+                                Forms\Components\Select::make('product_variant_id')
+                                    ->label('Variante')
+                                    ->options(function (callable $get) {
+                                        $productId = $get('product_id');
+                                        if (!$productId) {
+                                            return [];
+                                        }
+
+                                        return \App\Models\ProductVariant::where('product_id', $productId)
+                                            ->where('is_active', true)
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if ($state) {
+                                            $variant = \App\Models\ProductVariant::find($state);
+                                            $set('unit_price', $variant->sale_price);
+                                        }
+                                    })
+                                    ->visible(fn (callable $get) => $get('has_variants') ?? false)
+                                    ->columnSpan(1),
+
+                                Forms\Components\Hidden::make('has_variants')->default(false),
 
                                 Forms\Components\Textarea::make('description')
                                     ->label('Description')

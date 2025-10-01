@@ -13,7 +13,7 @@ class StockService
     /**
      * Créer ou obtenir un enregistrement de stock
      */
-    protected function getOrCreateStock(
+    public function getOrCreateStock(
         int $warehouseId,
         int $productId,
         ?int $productVariantId = null
