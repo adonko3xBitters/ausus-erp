@@ -5,15 +5,21 @@ namespace App\Observers;
 use App\Models\Invoice;
 use App\Models\Journal;
 use App\Services\AccountingService;
+use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceObserver
 {
     protected AccountingService $accountingService;
+    protected StockService $stockService;
 
-    public function __construct(AccountingService $accountingService)
+    public function __construct(
+        AccountingService $accountingService,
+        StockService $stockService
+    )
     {
         $this->accountingService = $accountingService;
+        $this->stockService = $stockService;
     }
 
     /**
@@ -48,6 +54,7 @@ class InvoiceObserver
         // Si la facture passe de "draft" à "sent"
         if ($invoice->isDirty('status') && $invoice->status === 'sent' && $invoice->getOriginal('status') === 'draft') {
             $this->generateJournalEntry($invoice);
+            $this->processStockOut($invoice);
         }
 
         // Recalculer les totaux si les items ont changé
@@ -138,6 +145,56 @@ class InvoiceObserver
 
             // Valider automatiquement l'écriture (optionnel)
             // $this->accountingService->postEntry($entry);
+        });
+    }
+
+    /**
+     * Traiter les sorties de stock
+     */
+    protected function processStockOut(Invoice $invoice): void
+    {
+        DB::transaction(function () use ($invoice) {
+            foreach ($invoice->items as $item) {
+                // Ne traiter que les produits (pas les services)
+                if (!$item->product || $item->product->type !== 'product' || !$item->product->track_inventory) {
+                    continue;
+                }
+
+                // Obtenir l'entrepôt par défaut
+                $warehouse = \App\Models\Warehouse::getDefault();
+
+                if (!$warehouse) {
+                    throw new \Exception('Aucun entrepôt par défaut configuré');
+                }
+
+                // Vérifier la disponibilité
+                $isAvailable = $this->stockService->checkAvailability(
+                    $warehouse->id,
+                    $item->product_id,
+                    $item->quantity,
+                    $item->product_variant_id ?? null
+                );
+
+                if (!$isAvailable) {
+                    throw new \Exception(
+                        "Stock insuffisant pour le produit: {$item->product->name}"
+                    );
+                }
+
+                // Sortie de stock
+                $this->stockService->stockOut([
+                    'warehouse_id' => $warehouse->id,
+                    'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id ?? null,
+                    'quantity' => $item->quantity,
+                    'cost_per_unit' => $item->product->cost_price,
+                    'movement_date' => $invoice->invoice_date->format('Y-m-d'),
+                    'reference' => $invoice->invoice_number,
+                    'notes' => "Vente - Facture {$invoice->invoice_number}",
+                    'movable_type' => get_class($invoice),
+                    'movable_id' => $invoice->id,
+                ]);
+            }
         });
     }
 }

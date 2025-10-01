@@ -5,15 +5,21 @@ namespace App\Observers;
 use App\Models\Bill;
 use App\Models\Journal;
 use App\Services\AccountingService;
+use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
 
 class BillObserver
 {
     protected AccountingService $accountingService;
+    protected StockService $stockService;
 
-    public function __construct(AccountingService $accountingService)
+    public function __construct(
+        AccountingService $accountingService,
+        StockService $stockService
+    )
     {
         $this->accountingService = $accountingService;
+        $this->stockService = $stockService;
     }
 
     /**
@@ -48,6 +54,7 @@ class BillObserver
         // Si la facture passe de "draft" à "received"
         if ($bill->isDirty('status') && $bill->status === 'received' && $bill->getOriginal('status') === 'draft') {
             $this->generateJournalEntry($bill);
+            $this->processStockIn($bill);
         }
 
         // Recalculer les totaux
@@ -133,6 +140,42 @@ class BillObserver
                 'transactions' => $transactions,
                 'status' => 'draft',
             ]);
+        });
+    }
+
+    /**
+     * Traiter les entrées de stock
+     */
+    protected function processStockIn(Bill $bill): void
+    {
+        DB::transaction(function () use ($bill) {
+            foreach ($bill->items as $item) {
+                // Ne traiter que les produits (pas les services)
+                if (!$item->product || $item->product->type !== 'product' || !$item->product->track_inventory) {
+                    continue;
+                }
+
+                // Obtenir l'entrepôt par défaut
+                $warehouse = \App\Models\Warehouse::getDefault();
+
+                if (!$warehouse) {
+                    throw new \Exception('Aucun entrepôt par défaut configuré');
+                }
+
+                // Entrée de stock
+                $this->stockService->stockIn([
+                    'warehouse_id' => $warehouse->id,
+                    'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id ?? null,
+                    'quantity' => $item->quantity,
+                    'cost_per_unit' => $item->unit_price, // Prix d'achat
+                    'movement_date' => $bill->bill_date->format('Y-m-d'),
+                    'reference' => $bill->bill_number,
+                    'notes' => "Achat - Facture {$bill->bill_number}",
+                    'movable_type' => get_class($bill),
+                    'movable_id' => $bill->id,
+                ]);
+            }
         });
     }
 }

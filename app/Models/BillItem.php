@@ -13,6 +13,7 @@ class BillItem extends Model
     protected $fillable = [
         'bill_id',
         'product_id',
+        'product_variant_id',
         'item_type',
         'description',
         'quantity',
@@ -73,5 +74,10 @@ class BillItem extends Model
             // Montant TTC
             $item->amount = $subtotal + $item->tax_amount;
         });
+    }
+
+    public function productVariant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class);
     }
 }

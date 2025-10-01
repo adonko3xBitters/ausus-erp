@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             TaxSeeder::class,
             JournalSeeder::class,
             PaymentMethodSeeder::class,
+            UnitSeeder::class,
+            WarehouseSeeder::class,
         ]);
     }
 }
