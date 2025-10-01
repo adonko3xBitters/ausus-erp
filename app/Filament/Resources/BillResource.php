@@ -1,0 +1,451 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\BillResource\Pages;
+use App\Models\Bill;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Notifications\Notification;
+
+class BillResource extends Resource
+{
+    protected static ?string $model = Bill::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-document-minus';
+
+    protected static ?string $navigationGroup = 'Achats';
+
+    protected static ?string $navigationLabel = 'Factures fournisseurs';
+
+    protected static ?string $modelLabel = 'Facture fournisseur';
+
+    protected static ?string $pluralModelLabel = 'Factures fournisseurs';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Informations générales')
+                    ->schema([
+                        Forms\Components\TextInput::make('bill_number')
+                            ->label('N° Facture')
+                            ->default(fn () => Bill::generateNumber())
+                            ->disabled()
+                            ->dehydrated()
+                            ->required()
+                            ->columnSpan(1),
+
+                        Forms\Components\Select::make('vendor_id')
+                            ->label('Fournisseur')
+                            ->relationship('vendor', 'name')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->vendor_number} - {$record->full_name}")
+                            ->searchable(['vendor_number', 'name', 'company_name'])
+                            ->required()
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $vendor = \App\Models\Vendor::find($state);
+                                    $set('currency_id', $vendor->currency_id);
+                                    $set('payment_terms', $vendor->payment_terms);
+                                }
+                            })
+                            ->columnSpan(1),
+
+                        Forms\Components\DatePicker::make('bill_date')
+                            ->label('Date facture')
+                            ->required()
+                            ->default(now())
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $paymentTerms = $get('payment_terms') ?? 30;
+                                if ($state) {
+                                    $set('due_date', now()->parse($state)->addDays($paymentTerms));
+                                }
+                            })
+                            ->columnSpan(1),
+
+                        Forms\Components\DatePicker::make('due_date')
+                            ->label('Date d\'échéance')
+                            ->required()
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('reference')
+                            ->label('N° Facture fournisseur')
+                            ->maxLength(255)
+                            ->placeholder('Référence externe...')
+                            ->columnSpan(1),
+
+                        Forms\Components\Select::make('status')
+                            ->label('Statut')
+                            ->options([
+                                'draft' => 'Brouillon',
+                                'received' => 'Reçue',
+                                'partial' => 'Partiellement payée',
+                                'paid' => 'Payée',
+                                'overdue' => 'En retard',
+                                'cancelled' => 'Annulée',
+                            ])
+                            ->default('draft')
+                            ->required()
+                            ->columnSpan(1),
+
+                        Forms\Components\Select::make('currency_id')
+                            ->label('Devise')
+                            ->relationship('currency', 'code')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->columnSpan(1),
+
+                        Forms\Components\Hidden::make('payment_terms')
+                            ->default(30),
+                    ])
+                    ->columns(3),
+
+                Forms\Components\Section::make('Lignes de facture')
+                    ->schema([
+                        Forms\Components\Repeater::make('items')
+                            ->relationship('items')
+                            ->schema([
+                                Forms\Components\Select::make('item_type')
+                                    ->label('Type')
+                                    ->options([
+                                        'product' => 'Produit',
+                                        'service' => 'Service',
+                                    ])
+                                    ->default('product')
+                                    ->required()
+                                    ->columnSpan(1),
+
+                                Forms\Components\Textarea::make('description')
+                                    ->label('Description')
+                                    ->required()
+                                    ->rows(2)
+                                    ->columnSpan(3),
+
+                                Forms\Components\TextInput::make('quantity')
+                                    ->label('Quantité')
+                                    ->numeric()
+                                    ->default(1)
+                                    ->required()
+                                    ->minValue(1)
+                                    ->reactive()
+                                    ->columnSpan(1),
+
+                                Forms\Components\TextInput::make('unit_price')
+                                    ->label('Prix unitaire')
+                                    ->numeric()
+                                    ->required()
+                                    ->suffix('FCFA')
+                                    ->reactive()
+                                    ->columnSpan(1),
+
+                                Forms\Components\TextInput::make('discount_percent')
+                                    ->label('Remise (%)')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->suffix('%')
+                                    ->reactive()
+                                    ->columnSpan(1),
+
+                                Forms\Components\Select::make('tax_id')
+                                    ->label('Taxe')
+                                    ->relationship('tax', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->reactive()
+                                    ->columnSpan(1),
+
+                                Forms\Components\Placeholder::make('line_total')
+                                    ->label('Total')
+                                    ->content(function ($get) {
+                                        $quantity = $get('quantity') ?? 0;
+                                        $unitPrice = $get('unit_price') ?? 0;
+                                        $discountPercent = $get('discount_percent') ?? 0;
+
+                                        $subtotal = $quantity * $unitPrice;
+                                        $discount = $subtotal * ($discountPercent / 100);
+                                        $amount = $subtotal - $discount;
+
+                                        $taxId = $get('tax_id');
+                                        if ($taxId) {
+                                            $tax = \App\Models\Tax::find($taxId);
+                                            if ($tax) {
+                                                $taxAmount = $tax->calculate($amount);
+                                                $amount += $taxAmount;
+                                            }
+                                        }
+
+                                        return number_format($amount, 0, ',', ' ') . ' FCFA';
+                                    })
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(9)
+                            ->minItems(1)
+                            ->defaultItems(1)
+                            ->addActionLabel('Ajouter une ligne')
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['description'] ?? null)
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $subtotal = 0;
+                                $taxAmount = 0;
+
+                                foreach ($state ?? [] as $item) {
+                                    $quantity = $item['quantity'] ?? 0;
+                                    $unitPrice = $item['unit_price'] ?? 0;
+                                    $discountPercent = $item['discount_percent'] ?? 0;
+
+                                    $itemSubtotal = $quantity * $unitPrice;
+                                    $discount = $itemSubtotal * ($discountPercent / 100);
+                                    $itemAmount = $itemSubtotal - $discount;
+
+                                    $subtotal += $itemAmount;
+
+                                    if (!empty($item['tax_id'])) {
+                                        $tax = \App\Models\Tax::find($item['tax_id']);
+                                        if ($tax) {
+                                            $taxAmount += $tax->calculate($itemAmount);
+                                        }
+                                    }
+                                }
+
+                                $set('subtotal', $subtotal);
+                                $set('tax_amount', $taxAmount);
+                                $set('total', $subtotal + $taxAmount);
+                                $set('amount_due', $subtotal + $taxAmount);
+                            }),
+                    ]),
+
+                Forms\Components\Section::make('Totaux')
+                    ->schema([
+                        Forms\Components\TextInput::make('subtotal')
+                            ->label('Sous-total HT')
+                            ->numeric()
+                            ->disabled()
+                            ->dehydrated()
+                            ->suffix('FCFA')
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('discount_amount')
+                            ->label('Remise globale')
+                            ->numeric()
+                            ->default(0)
+                            ->suffix('FCFA')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $subtotal = $get('subtotal') ?? 0;
+                                $taxAmount = $get('tax_amount') ?? 0;
+                                $discount = $state ?? 0;
+                                $set('total', $subtotal + $taxAmount - $discount);
+                                $set('amount_due', $subtotal + $taxAmount - $discount);
+                            })
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('tax_amount')
+                            ->label('TVA')
+                            ->numeric()
+                            ->disabled()
+                            ->dehydrated()
+                            ->suffix('FCFA')
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('total')
+                            ->label('Total TTC')
+                            ->numeric()
+                            ->disabled()
+                            ->dehydrated()
+                            ->suffix('FCFA')
+                            ->extraAttributes(['class' => 'font-bold text-lg'])
+                            ->columnSpan(1),
+                    ])
+                    ->columns(4),
+
+                Forms\Components\Section::make('Notes')
+                    ->schema([
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Notes')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('bill_number')
+                    ->label('N° Facture')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->copyable(),
+
+                Tables\Columns\TextColumn::make('vendor.name')
+                    ->label('Fournisseur')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn ($record) => $record->vendor->vendor_number),
+
+                Tables\Columns\TextColumn::make('reference')
+                    ->label('Référence')
+                    ->searchable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('bill_date')
+                    ->label('Date')
+                    ->date('d/m/Y')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('due_date')
+                    ->label('Échéance')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->color(fn ($record) => $record->due_date < now() && $record->status !== 'paid' ? 'danger' : null),
+
+                Tables\Columns\TextColumn::make('total')
+                    ->label('Montant')
+                    ->money('XOF')
+                    ->sortable()
+                    ->alignEnd(),
+
+                Tables\Columns\TextColumn::make('amount_paid')
+                    ->label('Payé')
+                    ->money('XOF')
+                    ->sortable()
+                    ->alignEnd()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('amount_due')
+                    ->label('Reste à payer')
+                    ->money('XOF')
+                    ->sortable()
+                    ->alignEnd()
+                    ->color(fn ($state) => $state > 0 ? 'warning' : 'success'),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Statut')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => match($state) {
+                        'draft' => 'Brouillon',
+                        'received' => 'Reçue',
+                        'partial' => 'Partielle',
+                        'paid' => 'Payée',
+                        'overdue' => 'En retard',
+                        'cancelled' => 'Annulée',
+                        default => $state,
+                    })
+                    ->color(fn ($record) => $record->status_color),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('vendor_id')
+                    ->label('Fournisseur')
+                    ->relationship('vendor', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Statut')
+                    ->options([
+                        'draft' => 'Brouillon',
+                        'received' => 'Reçue',
+                        'partial' => 'Partielle',
+                        'paid' => 'Payée',
+                        'overdue' => 'En retard',
+                        'cancelled' => 'Annulée',
+                    ])
+                    ->multiple(),
+
+                Tables\Filters\Filter::make('date')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->label('Du')
+                            ->native(false),
+                        Forms\Components\DatePicker::make('until')
+                            ->label('Au')
+                            ->native(false),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['from'], fn ($q) => $q->whereDate('bill_date', '>=', $data['from']))
+                            ->when($data['until'], fn ($q) => $q->whereDate('bill_date', '<=', $data['until']));
+                    }),
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+
+                Tables\Actions\EditAction::make()
+                    ->hidden(fn ($record) => in_array($record->status, ['paid', 'cancelled'])),
+
+                Tables\Actions\Action::make('receive')
+                    ->label('Marquer comme reçue')
+                    ->icon('heroicon-o-check')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->action(function (Bill $record) {
+                        $record->status = 'received';
+                        $record->received_at = now();
+                        $record->save();
+
+                        Notification::make()
+                            ->title('Facture reçue')
+                            ->success()
+                            ->send();
+                    })
+                    ->hidden(fn ($record) => $record->status !== 'draft'),
+
+                Tables\Actions\Action::make('record_payment')
+                    ->label('Enregistrer paiement')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('success')
+                    ->url(fn ($record) => route('filament.admin.resources.payments.create', ['bill_id' => $record->id]))
+                    ->hidden(fn ($record) => in_array($record->status, ['draft', 'paid', 'cancelled'])),
+
+                Tables\Actions\DeleteAction::make()
+                    ->hidden(fn ($record) => $record->status !== 'draft'),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->defaultSort('bill_date', 'desc');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListBills::route('/'),
+            'create' => Pages\CreateBill::route('/create'),
+            'view' => Pages\ViewBill::route('/{record}'),
+            'edit' => Pages\EditBill::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::whereIn('status', ['received', 'partial', 'overdue'])->count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::where('status', 'overdue')->exists() ? 'danger' : 'success';
+    }
+}
