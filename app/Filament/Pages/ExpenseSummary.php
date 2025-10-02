@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\ExpenseStatsOverview;
 use App\Models\Expense;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -11,6 +12,8 @@ use Carbon\Carbon;
 
 class ExpenseSummary extends Page
 {
+    use HasPageShield;
+
     protected static ?string $navigationIcon = 'heroicon-c-presentation-chart-line';
 
     protected static ?string $navigationGroup = 'Dépenses';

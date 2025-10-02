@@ -26,6 +26,7 @@ class ExpenseResource extends Resource
     protected static ?string $pluralModelLabel = 'Dépenses';
 
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'expense_number';
 
     public static function form(Form $form): Form
     {

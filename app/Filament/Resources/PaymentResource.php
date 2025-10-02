@@ -27,6 +27,7 @@ class PaymentResource extends Resource
     protected static ?string $pluralModelLabel = 'Paiements';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'payment_number';
 
     public static function form(Form $form): Form
     {

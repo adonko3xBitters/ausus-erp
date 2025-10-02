@@ -26,6 +26,7 @@ class InvoiceResource extends Resource
     protected static ?string $pluralModelLabel = 'Factures clients';
 
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'invoice_number';
 
     public static function form(Form $form): Form
     {

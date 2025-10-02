@@ -25,6 +25,7 @@ class JournalResource extends Resource
     protected static ?string $pluralModelLabel = 'Journaux';
 
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'code';
 
     public static function form(Form $form): Form
     {

@@ -2,12 +2,15 @@
 
 namespace App\Filament\Widgets;
 
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Expense;
 
 class ExpenseStatsOverview extends BaseWidget
 {
+    use HasWidgetShield;
+
     public $startDate;
     public $endDate;
 

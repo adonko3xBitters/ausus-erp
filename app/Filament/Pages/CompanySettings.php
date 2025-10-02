@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\CompanySetting;
 use App\Models\Country;
 use App\Models\Currency;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
@@ -12,6 +13,8 @@ use Filament\Notifications\Notification;
 
 class CompanySettings extends Page implements Forms\Contracts\HasForms
 {
+    use HasPageShield;
+
     use Forms\Concerns\InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';

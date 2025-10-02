@@ -27,6 +27,7 @@ class StockMovementResource extends Resource
     protected static ?string $pluralModelLabel = 'Mouvements de stock';
 
     protected static ?int $navigationSort = 6;
+    protected static ?string $recordTitleAttribute = 'movement_number';
 
     public static function form(Form $form): Form
     {

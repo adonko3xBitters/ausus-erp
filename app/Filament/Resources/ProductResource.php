@@ -25,6 +25,7 @@ class ProductResource extends Resource
     protected static ?string $pluralModelLabel = 'Produits';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {

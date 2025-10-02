@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Stock;
 use App\Models\Warehouse;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -13,6 +14,8 @@ use Filament\Forms;
 
 class StockStatus extends Page implements HasTable
 {
+    use HasPageShield;
+
     use InteractsWithTable;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
