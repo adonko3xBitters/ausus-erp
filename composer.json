@@ -29,7 +29,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/greetings.php"
+            "app/Helpers/greetings.php",
+            "app/Helpers/currency.php"
         ]
     },
     "autoload-dev": {

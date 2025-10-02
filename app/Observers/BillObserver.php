@@ -43,7 +43,7 @@ class BillObserver
      */
     public function created(Bill $bill): void
     {
-        $bill->calculateTotals();
+        // $bill->calculateTotals();
     }
 
     /**

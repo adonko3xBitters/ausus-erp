@@ -49,4 +49,9 @@ class Currency extends Model
             ->orderByDesc('date')
             ->first()?->rate ?? 1;
     }
+
+    public function scopeDefault($query)
+    {
+        return $query->where('is_base', true)->first();
+    }
 }

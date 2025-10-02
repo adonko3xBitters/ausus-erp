@@ -43,7 +43,7 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice): void
     {
-        $invoice->calculateTotals();
+        // $invoice->calculateTotals();
     }
 
     /**
