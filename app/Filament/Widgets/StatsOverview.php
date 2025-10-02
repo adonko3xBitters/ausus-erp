@@ -6,11 +6,14 @@ use App\Models\Account;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\FiscalYear;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverview extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected function getStats(): array
     {
         $activeFiscalYear = FiscalYear::where('is_active', true)->first();

@@ -27,6 +27,7 @@ class PaymentResource extends Resource
     protected static ?string $pluralModelLabel = 'Paiements';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'payment_number';
 
     public static function form(Form $form): Form
     {
@@ -59,7 +60,7 @@ class PaymentResource extends Resource
                                 return Invoice::whereIn('status', ['sent', 'partial', 'overdue'])
                                     ->get()
                                     ->mapWithKeys(function ($invoice) {
-                                        return [$invoice->id => "{$invoice->invoice_number} - {$invoice->customer->name} ({$invoice->amount_due} FCFA)"];
+                                        return [$invoice->id => "{$invoice->invoice_number} - {$invoice->customer->name} ({$invoice->amount_due} ". currency()->symbol .")"];
                                     });
                             })
                             ->searchable()
@@ -84,7 +85,7 @@ class PaymentResource extends Resource
                                 return Bill::whereIn('status', ['received', 'partial', 'overdue'])
                                     ->get()
                                     ->mapWithKeys(function ($bill) {
-                                        return [$bill->id => "{$bill->bill_number} - {$bill->vendor->name} ({$bill->amount_due} FCFA)"];
+                                        return [$bill->id => "{$bill->bill_number} - {$bill->vendor->name} ({$bill->amount_due} ". currency()->symbol .")"];
                                     });
                             })
                             ->searchable()
@@ -118,7 +119,7 @@ class PaymentResource extends Resource
                             ->label('Montant')
                             ->numeric()
                             ->required()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
 
                         Forms\Components\Select::make('payment_method_id')
@@ -206,7 +207,7 @@ class PaymentResource extends Resource
 
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Montant')
-                    ->money('XOF')
+                    ->money(currency()->code)
                     ->sortable()
                     ->alignEnd(),
 

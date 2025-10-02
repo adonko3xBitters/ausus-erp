@@ -33,7 +33,7 @@ class PaymentObserver
     {
         DB::transaction(function () use ($payment) {
             // Mettre à jour le montant payé de la facture
-            $paymentable = $payment->paymentable;
+            $paymentable = $payment->paymentable ?: get_class($payment);
             $paymentable->amount_paid += $payment->amount;
             $paymentable->amount_due = $paymentable->total - $paymentable->amount_paid;
             $paymentable->updateStatus();

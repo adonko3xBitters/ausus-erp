@@ -25,6 +25,7 @@ class BrandResource extends Resource
     protected static ?string $pluralModelLabel = 'Marques';
 
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {

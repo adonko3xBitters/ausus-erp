@@ -3,9 +3,9 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\StatsOverview;
-use Filament\Pages\Page;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
-class Dashboard extends Page
+class Dashboard extends \Filament\Pages\Dashboard
 {
     protected static ?string $navigationIcon = 'heroicon-s-arrows-pointing-in';
 

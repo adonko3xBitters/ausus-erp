@@ -3,27 +3,26 @@
         <!-- Filtres de date -->
         <x-filament::section>
             <div class="flex gap-4">
-                <div>
+                <div class="flex-1">
                     <x-filament::input.wrapper>
                         <x-filament::input
                             type="date"
                             wire:model.live="startDate"
+                            class="w-full h-12 text-lg"
                         />
                     </x-filament::input.wrapper>
                 </div>
-                <div>
+                <div class="flex-1">
                     <x-filament::input.wrapper>
                         <x-filament::input
                             type="date"
                             wire:model.live="endDate"
+                            class="w-full h-12 text-lg"
                         />
                     </x-filament::input.wrapper>
                 </div>
             </div>
         </x-filament::section>
-
-        <!-- Statistiques -->
-        @livewire(\Filament\Widgets\StatsOverviewWidget::class)
 
         <!-- Dépenses par catégorie -->
         <x-filament::section>

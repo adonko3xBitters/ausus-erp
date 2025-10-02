@@ -25,6 +25,7 @@ class ExpenseCategoryResource extends Resource
     protected static ?string $pluralModelLabel = 'Catégories de dépenses';
 
     protected static ?int $navigationSort = 1;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {

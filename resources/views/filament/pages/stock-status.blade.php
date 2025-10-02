@@ -20,23 +20,23 @@
                 </div>
             </x-filament::section>
 
-            <x-filament::section>
+            {{--<x-filament::section>
                 <div class="text-center">
                     <div class="text-3xl font-bold text-danger-600">
                         {{ \App\Models\Stock::whereColumn('available_quantity', '<=', 'alert_quantity')->count() }}
                     </div>
                     <div class="text-sm text-gray-600">Stocks bas</div>
                 </div>
-            </x-filament::section>
+            </x-filament::section>--}}
 
-            <x-filament::section>
+            {{--<x-filament::section>
                 <div class="text-center">
                     <div class="text-3xl font-bold text-gray-900">
                         {{ number_format(\App\Models\Stock::sum(\DB::raw('quantity * cost_price')), 0) }} FCFA
                     </div>
                     <div class="text-sm text-gray-600">Valeur totale</div>
                 </div>
-            </x-filament::section>
+            </x-filament::section>--}}
         </div>
 
         <!-- Table -->

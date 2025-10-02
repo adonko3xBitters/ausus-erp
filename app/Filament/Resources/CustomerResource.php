@@ -9,6 +9,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
+use Ysfkaya\FilamentPhoneInput\Tables\PhoneColumn;
 
 class CustomerResource extends Resource
 {
@@ -25,6 +28,29 @@ class CustomerResource extends Resource
     protected static ?string $pluralModelLabel = 'Clients';
 
     protected static ?int $navigationSort = 1;
+    protected static ?string $recordTitleAttribute = 'name';
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'company_name', 'email', 'phone', 'customer_number', 'mobile', 'billing_address', 'shipping_address', 'billing_city', 'shipping_city', 'shippingCountry.name', 'shippingCountry.code', 'billingCountry.name', 'billingCountry.code', 'currency.code', 'currency.name', 'currency.symbol', 'account.name', 'account.name', 'account.code'];
+    }
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Numéro de compte comptable' => $record->account->code ?? '—',
+            'Numéro fournisseur' => $record->customer_number ?? '—',
+            'Nom & Prénom(s)' => $record->name ?? '—',
+            'Raison sociale' => $record->company_name ?? '—',
+            'Adresse e-mail' => $record->email ?? '—',
+            'Numéro de téléphone' => $record->phone ?? '—',
+            'Numéro de mobile' => $record->mobile ?? '—',
+            'Adresse de facturation' => $record->billing_address ?? '—',
+            'Ville de facturation' => $record->billing_city ?? '—',
+            'Pays de facturation' => $record->billingCountry->name ?? '—',
+            'Adresse de livraison' => $record->shipping_address ?? '—',
+            'Ville de livraison' => $record->shipping_city ?? '—',
+            'Pays de livraison' => $record->shippingCountry->name ?? '—',
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -57,16 +83,14 @@ class CustomerResource extends Resource
                             ->maxLength(255)
                             ->columnSpan(1),
 
-                        Forms\Components\TextInput::make('phone')
+                        PhoneInput::make('phone')
                             ->label('Téléphone')
-                            ->tel()
-                            ->maxLength(255)
+                            ->defaultCountry('CI')
                             ->columnSpan(1),
 
-                        Forms\Components\TextInput::make('mobile')
+                        PhoneInput::make('mobile')
                             ->label('Mobile')
-                            ->tel()
-                            ->maxLength(255)
+                            ->defaultCountry('CI')
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('tax_number')
@@ -204,7 +228,7 @@ class CustomerResource extends Resource
                     ->searchable()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('phone')
+                PhoneColumn::make('phone')
                     ->label('Téléphone')
                     ->searchable()
                     ->toggleable(),
