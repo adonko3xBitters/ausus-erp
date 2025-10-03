@@ -4,11 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductVariantResource\Pages;
 use App\Models\ProductVariant;
+use App\Models\Warehouse;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use function Pest\Laravel\options;
 
 class ProductVariantResource extends Resource
 {
@@ -74,7 +76,7 @@ class ProductVariantResource extends Resource
                             ->numeric()
                             ->default(0)
                             ->prefix('+/-')
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->helperText('Montant à ajouter ou soustraire au prix du produit parent')
                             ->columnSpan(1),
 
@@ -84,7 +86,7 @@ class ProductVariantResource extends Resource
                                 if (!$record) {
                                     return 'Sauvegardez d\'abord pour voir le prix final';
                                 }
-                                return number_format($record->sale_price, 0) . ' FCFA';
+                                return number_format($record->sale_price, 0) . ' ' . currency()->symbol;
                             })
                             ->columnSpan(1),
 
@@ -204,8 +206,10 @@ class ProductVariantResource extends Resource
                         ->form([
                             Forms\Components\Select::make('warehouse_id')
                                 ->label('Entrepôt')
-                                ->relationship('product.warehouses', 'name')
+                                // ->relationship('product.warehouses', 'name')
+                                ->options(Warehouse::all()->pluck('name', 'id'))
                                 ->default(fn () => \App\Models\Warehouse::getDefault()?->id)
+                                ->searchable()
                                 ->required(),
 
                             Forms\Components\TextInput::make('new_quantity')

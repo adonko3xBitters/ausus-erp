@@ -124,7 +124,7 @@ class ProductResource extends Resource
                                     ->label('Prix d\'achat')
                                     ->numeric()
                                     ->default(0)
-                                    ->suffix('FCFA')
+                                    ->suffix(currency()->symbol)
                                     ->required()
                                     ->columnSpan(1),
 
@@ -132,7 +132,7 @@ class ProductResource extends Resource
                                     ->label('Prix de vente')
                                     ->numeric()
                                     ->default(0)
-                                    ->suffix('FCFA')
+                                    ->suffix(currency()->symbol)
                                     ->required()
                                     ->columnSpan(1),
 
@@ -140,7 +140,7 @@ class ProductResource extends Resource
                                     ->label('Coût de revient (CMP)')
                                     ->numeric()
                                     ->default(0)
-                                    ->suffix('FCFA')
+                                    ->suffix(currency()->symbol)
                                     ->disabled()
                                     ->dehydrated()
                                     ->helperText('Calculé automatiquement')
@@ -343,7 +343,7 @@ class ProductResource extends Resource
                                                             ->numeric()
                                                             ->default(0)
                                                             ->prefix('+/-')
-                                                            ->suffix('FCFA')
+                                                            ->suffix(currency()->symbol)
                                                             ->helperText('Ajouté au prix du produit parent')
                                                             ->columnSpan(1),
 
@@ -355,7 +355,7 @@ class ProductResource extends Resource
                                                                 }
                                                                 $basePrice = $record->product->sale_price;
                                                                 $additional = $get('additional_price') ?? 0;
-                                                                return number_format($basePrice + $additional, 0) . ' FCFA';
+                                                                return number_format($basePrice + $additional, 0) . ' ' . currency()->symbol;
                                                             })
                                                             ->columnSpan(1),
 

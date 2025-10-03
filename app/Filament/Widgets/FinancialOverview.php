@@ -35,24 +35,24 @@ class FinancialOverview extends BaseWidget
             ->sum('amount_due');
 
         return [
-            Stat::make('Revenus du mois', number_format($monthlyRevenue, 0) . ' FCFA')
+            Stat::make('Revenus du mois', number_format($monthlyRevenue, 0) . ' ' . currency()->symbol)
                 ->description('Factures clients')
                 ->descriptionIcon('heroicon-o-arrow-trending-up')
                 ->color('success')
                 ->chart([7, 3, 4, 5, 6, 3, 5, 3]),
 
-            Stat::make('Dépenses du mois', number_format($monthlyExpenses, 0) . ' FCFA')
+            Stat::make('Dépenses du mois', number_format($monthlyExpenses, 0) . ' ' . currency()->symbol)
                 ->description('Dépenses payées')
                 ->descriptionIcon('heroicon-o-arrow-trending-down')
                 ->color('danger')
                 ->chart([3, 5, 7, 4, 6, 5, 8, 6]),
 
-            Stat::make('Créances clients', number_format($unpaidInvoices, 0) . ' FCFA')
+            Stat::make('Créances clients', number_format($unpaidInvoices, 0) . ' ' . currency()->symbol)
                 ->description('À encaisser')
                 ->descriptionIcon('heroicon-o-banknotes')
                 ->color('warning'),
 
-            Stat::make('Dettes fournisseurs', number_format($unpaidBills, 0) . ' FCFA')
+            Stat::make('Dettes fournisseurs', number_format($unpaidBills, 0) . ' ' . currency()->symbol)
                 ->description('À payer')
                 ->descriptionIcon('heroicon-o-credit-card')
                 ->color('info'),

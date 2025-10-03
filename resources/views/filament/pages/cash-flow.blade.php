@@ -33,7 +33,7 @@
                     <div class="text-center">
                         <p class="text-sm text-gray-600">Solde initial</p>
                         <p class="text-2xl font-bold text-gray-900 mt-2">
-                            {{ number_format($reportData['initial_balance'], 0, ',', ' ') }} FCFA
+                            {{ number_format($reportData['initial_balance'], 0, ',', ' ') }} {{currency()->symbol}}
                         </p>
                     </div>
                 </x-filament::section>
@@ -42,7 +42,8 @@
                     <div class="text-center">
                         <p class="text-sm text-gray-600">Flux de la période</p>
                         <p class="text-2xl font-bold {{ $reportData['cash_flow'] >= 0 ? 'text-green-600' : 'text-red-600' }} mt-2">
-                            {{ $reportData['cash_flow'] >= 0 ? '+' : '' }}{{ number_format($reportData['cash_flow'], 0, ',', ' ') }} FCFA
+                            {{ $reportData['cash_flow'] >= 0 ? '+' : '' }}{{ number_format($reportData['cash_flow'], 0, ',', ' ') }}
+                            {{currency()->symbol}}
                         </p>
                     </div>
                 </x-filament::section>
@@ -51,7 +52,7 @@
                     <div class="text-center">
                         <p class="text-sm text-gray-600">Solde final</p>
                         <p class="text-2xl font-bold text-blue-600 mt-2">
-                            {{ number_format($reportData['final_balance'], 0, ',', ' ') }} FCFA
+                            {{ number_format($reportData['final_balance'], 0, ',', ' ') }} {{currency()->symbol}}
                         </p>
                     </div>
                 </x-filament::section>

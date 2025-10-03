@@ -44,7 +44,7 @@
                         <div class="flex items-center justify-between">
                             <span class="text-lg font-bold text-red-600">CHARGES</span>
                             <span class="text-lg font-bold text-red-600">
-                                {{ number_format($reportData['expenses']['total'], 0, ',', ' ') }} FCFA
+                                {{ number_format($reportData['expenses']['total'], 0, ',', ' ') }} {{currency()->symbol}}
                             </span>
                         </div>
                     </x-slot>
@@ -70,7 +70,7 @@
                         <div class="flex items-center justify-between">
                             <span class="text-lg font-bold text-green-600">PRODUITS</span>
                             <span class="text-lg font-bold text-green-600">
-                                {{ number_format($reportData['revenues']['total'], 0, ',', ' ') }} FCFA
+                                {{ number_format($reportData['revenues']['total'], 0, ',', ' ') }} {{currency()->symbol}}
                             </span>
                         </div>
                     </x-slot>
@@ -97,7 +97,7 @@
                     <div class="flex justify-between items-center">
                         <span class="text-2xl font-bold text-gray-900">RÉSULTAT NET</span>
                         <span class="text-3xl font-bold {{ $reportData['net_income'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                            {{ number_format($reportData['net_income'], 0, ',', ' ') }} FCFA
+                            {{ number_format($reportData['net_income'], 0, ',', ' ') }} {{currency()->symbol}}
                         </span>
                     </div>
                     <div class="mt-4 text-center">

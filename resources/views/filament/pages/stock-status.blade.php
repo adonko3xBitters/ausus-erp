@@ -32,7 +32,7 @@
             {{--<x-filament::section>
                 <div class="text-center">
                     <div class="text-3xl font-bold text-gray-900">
-                        {{ number_format(\App\Models\Stock::sum(\DB::raw('quantity * cost_price')), 0) }} FCFA
+                        {{ number_format(\App\Models\Stock::sum(\DB::raw('quantity * cost_price')), 0) }} {{currency()->symbol}}
                     </div>
                     <div class="text-sm text-gray-600">Valeur totale</div>
                 </div>

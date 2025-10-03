@@ -179,7 +179,7 @@ class InvoiceResource extends Resource
                                                 $attributes = collect($variant->attributes)
                                                     ->map(fn($value, $key) => "$value")
                                                     ->implode(', ');
-                                                return [$variant->id => "{$variant->name} ({$attributes}) - " . number_format($variant->sale_price, 0) . " FCFA"];
+                                                return [$variant->id => "{$variant->name} ({$attributes}) - " . number_format($variant->sale_price, 0) . " " . currency()->symbol];
                                             })
                                             ->toArray();
                                     })
@@ -217,7 +217,7 @@ class InvoiceResource extends Resource
                                     ->label('Prix unitaire')
                                     ->numeric()
                                     ->required()
-                                    ->suffix('FCFA')
+                                    ->suffix(currency()->symbol)
                                     ->reactive()
                                     ->columnSpan(1),
 
@@ -259,7 +259,7 @@ class InvoiceResource extends Resource
                                             }
                                         }
 
-                                        return number_format($amount, 0, ',', ' ') . ' FCFA';
+                                        return number_format($amount, 0, ',', ' ') . ' ' . currency()->symbol;
                                     })
                                     ->columnSpan(1),
                             ])
@@ -309,14 +309,14 @@ class InvoiceResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('discount_amount')
                             ->label('Remise globale')
                             ->numeric()
                             ->default(0)
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $subtotal = $get('subtotal') ?? 0;
@@ -332,7 +332,7 @@ class InvoiceResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('total')
@@ -340,7 +340,7 @@ class InvoiceResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->extraAttributes(['class' => 'font-bold text-lg'])
                             ->columnSpan(1),
                     ])

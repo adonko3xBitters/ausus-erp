@@ -76,7 +76,7 @@ class ExpenseResource extends Resource
                             ->label('Montant HT')
                             ->numeric()
                             ->required()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $taxId = $get('tax_id');
@@ -121,7 +121,7 @@ class ExpenseResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('total_amount')
@@ -129,7 +129,7 @@ class ExpenseResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->extraAttributes(['class' => 'font-bold text-lg'])
                             ->columnSpan(1),
 

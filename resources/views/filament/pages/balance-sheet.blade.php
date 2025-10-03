@@ -27,7 +27,7 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-lg font-bold text-blue-600">ACTIF</span>
                                 <span class="text-lg font-bold text-blue-600">
-                                    {{ number_format($reportData['assets']['total'], 0, ',', ' ') }} FCFA
+                                    {{ number_format($reportData['assets']['total'], 0, ',', ' ') }} {{currency()->symbol}}
                                 </span>
                             </div>
                         </x-slot>
@@ -89,7 +89,7 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-lg font-bold text-purple-600">PASSIF</span>
                                 <span class="text-lg font-bold text-purple-600">
-                                    {{ number_format($reportData['liabilities']['total'], 0, ',', ' ') }} FCFA
+                                    {{ number_format($reportData['liabilities']['total'], 0, ',', ' ') }} {{currency()->symbol}}
                                 </span>
                             </div>
                         </x-slot>
@@ -159,7 +159,7 @@
                                 ✓ Le bilan est équilibré
                             </p>
                             <p class="text-sm text-gray-600 mt-1">
-                                Actif = Passif = {{ number_format($reportData['assets']['total'], 0, ',', ' ') }} FCFA
+                                Actif = Passif = {{ number_format($reportData['assets']['total'], 0, ',', ' ') }} {{currency()->symbol}}
                             </p>
                         </div>
                     @else
@@ -168,7 +168,7 @@
                                 ⚠️ Le bilan n'est pas équilibré
                             </p>
                             <p class="text-sm text-gray-600 mt-1">
-                                Différence : {{ number_format($difference, 0, ',', ' ') }} FCFA
+                                Différence : {{ number_format($difference, 0, ',', ' ') }} {{currency()->symbol}}
                             </p>
                         </div>
                     @endif

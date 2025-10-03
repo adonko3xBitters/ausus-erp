@@ -56,7 +56,7 @@
     <div style="clear: both; margin-top: 30px; padding: 20px; background-color: #f0f0f0; text-align: center;">
         <strong style="font-size: 14pt;">RÉSULTAT NET :
             <span style="color: {{ $data['net_income'] >= 0 ? 'green' : 'red' }};">
-                {{ number_format($data['net_income'], 0, ',', ' ') }} FCFA
+                {{ number_format($data['net_income'], 0, ',', ' ') }} {{currency()->symbol}}
             </span>
         </strong>
         <br>
