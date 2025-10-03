@@ -137,17 +137,21 @@ class BillResource extends Resource
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         if ($state) {
                                             $product = \App\Models\Product::find($state);
-                                            $set('description', $product->name);
-                                            $set('unit_price', $product->sale_price);
-                                            $set('tax_id', $product->sale_tax_id);
-                                            $set('unit', $product->unit->short_name);
 
-                                            // Charger les variantes si le produit en a
-                                            if ($product->has_variants) {
-                                                $set('has_variants', true);
-                                            } else {
+                                            // Si le produit n'a pas de variantes
+                                            if (!$product->has_variants) {
+                                                $set('description', $product->name);
+                                                $set('unit_price', $product->sale_price);
+                                                $set('tax_id', $product->sale_tax_id);
+                                                $set('unit', $product->unit->short_name);
                                                 $set('has_variants', false);
                                                 $set('product_variant_id', null);
+                                            } else {
+                                                // Si le produit a des variantes
+                                                $set('has_variants', true);
+                                                $set('description', $product->name);
+                                                $set('unit', $product->unit->short_name);
+                                                // Ne pas mettre de prix, attendre la sélection de la variante
                                             }
                                         }
                                     })
@@ -161,21 +165,34 @@ class BillResource extends Resource
                                             return [];
                                         }
 
-                                        return \App\Models\ProductVariant::where('product_id', $productId)
+                                        $product = \App\Models\Product::find($productId);
+                                        if (!$product || !$product->has_variants) {
+                                            return [];
+                                        }
+
+                                        return $product->variants()
                                             ->where('is_active', true)
-                                            ->pluck('name', 'id')
+                                            ->get()
+                                            ->mapWithKeys(function ($variant) {
+                                                $attributes = collect($variant->attributes)
+                                                    ->map(fn($value, $key) => "$value")
+                                                    ->implode(', ');
+                                                return [$variant->id => "{$variant->name} ({$attributes}) - " . number_format($variant->sale_price, 0) . " " . currency()->symbol];
+                                            })
                                             ->toArray();
                                     })
                                     ->searchable()
                                     ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                    ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
                                             $variant = \App\Models\ProductVariant::find($state);
                                             $set('unit_price', $variant->sale_price);
+                                            $set('description', $variant->name);
                                         }
                                     })
                                     ->visible(fn (callable $get) => $get('has_variants') ?? false)
-                                    ->columnSpan(1),
+                                    ->required(fn (callable $get) => $get('has_variants') ?? false)
+                                    ->columnSpan(2),
 
                                 Forms\Components\Hidden::make('has_variants')->default(false),
 
@@ -198,7 +215,7 @@ class BillResource extends Resource
                                     ->label('Prix unitaire')
                                     ->numeric()
                                     ->required()
-                                    ->suffix('FCFA')
+                                    ->suffix(currency()->symbol)
                                     ->reactive()
                                     ->columnSpan(1),
 
@@ -240,7 +257,7 @@ class BillResource extends Resource
                                             }
                                         }
 
-                                        return number_format($amount, 0, ',', ' ') . ' FCFA';
+                                        return number_format($amount, 0, ',', ' ') . ' ' . currency()->symbol;
                                     })
                                     ->columnSpan(1),
                             ])
@@ -289,14 +306,14 @@ class BillResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('discount_amount')
                             ->label('Remise globale')
                             ->numeric()
                             ->default(0)
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $subtotal = $get('subtotal') ?? 0;
@@ -312,7 +329,7 @@ class BillResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('total')
@@ -320,7 +337,7 @@ class BillResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->extraAttributes(['class' => 'font-bold text-lg'])
                             ->columnSpan(1),
                     ])

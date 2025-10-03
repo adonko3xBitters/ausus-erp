@@ -102,7 +102,7 @@ class JournalEntryResource extends Resource
                                     ->default(0)
                                     ->minValue(0)
                                     ->step(0.01)
-                                    ->suffix('FCFA')
+                                    ->suffix(currency()->symbol)
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state > 0) {
@@ -117,7 +117,7 @@ class JournalEntryResource extends Resource
                                     ->default(0)
                                     ->minValue(0)
                                     ->step(0.01)
-                                    ->suffix('FCFA')
+                                    ->suffix(currency()->symbol)
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state > 0) {
@@ -159,15 +159,15 @@ class JournalEntryResource extends Resource
                                     <div class='grid grid-cols-3 gap-4 text-sm'>
                                         <div>
                                             <strong>Total Débit:</strong>
-                                            <span class='text-green-600'>" . number_format($totalDebit, 2) . " FCFA</span>
+                                            <span class='text-green-600'>" . number_format($totalDebit, 2) . " . " . currency()->symbol . "</span>
                                         </div>
                                         <div>
                                             <strong>Total Crédit:</strong>
-                                            <span class='text-red-600'>" . number_format($totalCredit, 2) . " FCFA</span>
+                                            <span class='text-red-600'>" . number_format($totalCredit, 2) . "  . " . currency()->symbol . "</span>
                                         </div>
                                         <div>
                                             <strong>Différence:</strong>
-                                            <span class='{$balanceColor}'>" . number_format($difference, 2) . " FCFA</span>
+                                            <span class='{$balanceColor}'>" . number_format($difference, 2) . "  . " . currency()->symbol . "</span>
                                         </div>
                                     </div>
                                 ");

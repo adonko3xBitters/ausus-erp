@@ -43,7 +43,7 @@
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $item['category'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-right font-medium">
-                                {{ number_format($item['total'], 0) }} FCFA
+                                {{ number_format($item['total'], 0) }} {{currency()->symbol}}
                             </td>
                         </tr>
                     @endforeach

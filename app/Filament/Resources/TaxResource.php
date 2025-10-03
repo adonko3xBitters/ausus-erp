@@ -66,7 +66,7 @@ class TaxResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->step(0.0001)
-                            ->suffix(fn ($get) => $get('type') === 'percentage' ? '%' : 'FCFA')
+                            ->suffix(fn ($get) => $get('type') === 'percentage' ? '%' : currency()->symbol)
                             ->columnSpan(1),
 
                         Forms\Components\Textarea::make('description')
@@ -125,7 +125,7 @@ class TaxResource extends Resource
                         if ($record->type === 'percentage') {
                             return number_format($record->rate, 2) . ' %';
                         }
-                        return number_format($record->rate, 0) . ' FCFA';
+                        return number_format($record->rate, 0) . ' ' . currency()->symbol;
                     })
                     ->sortable(),
 

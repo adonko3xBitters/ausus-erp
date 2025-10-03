@@ -187,7 +187,7 @@ class CustomerResource extends Resource
                             ->label('Limite de crédit')
                             ->numeric()
                             ->default(0)
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
                     ])
                     ->columns(2),

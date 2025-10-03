@@ -166,7 +166,7 @@ class StockMovementResource extends Resource
                             ->label('Coût unitaire')
                             ->numeric()
                             ->default(0)
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $quantity = $get('quantity') ?? 0;
@@ -179,7 +179,7 @@ class StockMovementResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->suffix('FCFA')
+                            ->suffix(currency()->symbol)
                             ->columnSpan(1),
                     ])
                     ->columns(3),
