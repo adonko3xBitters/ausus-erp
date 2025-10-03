@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\FinancialOverview;
 use App\Filament\Widgets\StatsOverview;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
@@ -23,6 +24,7 @@ class Dashboard extends \Filament\Pages\Dashboard
     {
         return [
             StatsOverview::class,
+            FinancialOverview::class,
         ];
     }
 }

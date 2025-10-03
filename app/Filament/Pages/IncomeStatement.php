@@ -5,29 +5,25 @@ namespace App\Filament\Pages;
 use App\Models\FiscalYear;
 use App\Services\PdfExportService;
 use App\Services\ReportService;
-use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
-use Filament\Forms;
 use Filament\Actions\Action;
 
-class TrialBalance extends Page
+class IncomeStatement extends Page
 {
-    use HasPageShield;
-
-    protected static ?string $navigationIcon = 'heroicon-o-scale';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document';
 
     protected static ?string $navigationGroup = 'Rapports';
 
-    protected static ?string $navigationLabel = 'Balance générale';
+    protected static ?string $navigationLabel = 'Compte de résultat';
 
-    protected static string $view = 'filament.pages.trial-balance';
+    protected static string $view = 'filament.pages.income-statement';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     public ?string $startDate = null;
     public ?string $endDate = null;
     public ?int $fiscalYearId = null;
-    public ?array $balanceData = null;
+    public ?array $reportData = null;
 
     public function mount(): void
     {
@@ -42,17 +38,36 @@ class TrialBalance extends Page
             $this->endDate = now()->endOfYear()->format('Y-m-d');
         }
 
-        $this->loadBalance();
+        $this->loadReport();
     }
 
-    public function loadBalance(): void
+    public function loadReport(): void
     {
         $reportService = app(ReportService::class);
-        $this->balanceData = $reportService->generateTrialBalance(
+        $this->reportData = $reportService->generateIncomeStatement(
             $this->startDate,
-            $this->endDate,
-            $this->fiscalYearId
+            $this->endDate
         );
+    }
+
+    public function updatedFiscalYearId(): void
+    {
+        if ($this->fiscalYearId) {
+            $fiscalYear = FiscalYear::find($this->fiscalYearId);
+            $this->startDate = $fiscalYear->start_date->format('Y-m-d');
+            $this->endDate = $fiscalYear->end_date->format('Y-m-d');
+        }
+        $this->loadReport();
+    }
+
+    public function updatedStartDate(): void
+    {
+        $this->loadReport();
+    }
+
+    public function updatedEndDate(): void
+    {
+        $this->loadReport();
     }
 
     protected function getHeaderActions(): array
@@ -61,38 +76,23 @@ class TrialBalance extends Page
             Action::make('refresh')
                 ->label('Actualiser')
                 ->icon('heroicon-o-arrow-path')
-                ->action('loadBalance'),
+                ->action('loadReport'),
 
             Action::make('export_pdf')
                 ->label('Exporter PDF')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('danger')
                 ->action('exportPdf'),
-
-            Action::make('export_excel')
-                ->label('Exporter Excel')
-                ->icon('heroicon-o-table-cells')
-                ->color('success')
-                ->action('exportExcel'),
         ];
     }
 
     public function exportPdf(): \Symfony\Component\HttpFoundation\Response
     {
         $pdfService = app(PdfExportService::class);
-        $pdf = $pdfService->generateTrialBalancePdf($this->balanceData);
+        $pdf = $pdfService->generateIncomeStatementPdf($this->reportData);
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();
-        }, 'balance-generale-' . now()->format('Y-m-d') . '.pdf');
-    }
-
-    public function exportExcel(): void
-    {
-        // TODO: Implémenter l'export Excel
-        \Filament\Notifications\Notification::make()
-            ->title('Fonctionnalité à venir')
-            ->warning()
-            ->send();
+        }, 'compte-resultat-' . now()->format('Y-m-d') . '.pdf');
     }
 }
