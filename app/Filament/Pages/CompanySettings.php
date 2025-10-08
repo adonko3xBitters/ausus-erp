@@ -23,6 +23,10 @@ class CompanySettings extends Page implements Forms\Contracts\HasForms
 
     protected static ?string $navigationLabel = 'Entreprise';
 
+    protected static ?string $title = 'Paramètres de l\'entreprise';
+
+    protected ?string $heading = 'Paramètres de l\'entreprise';
+
     protected static string $view = 'filament.pages.company-settings';
 
     protected static ?int $navigationSort = 10;

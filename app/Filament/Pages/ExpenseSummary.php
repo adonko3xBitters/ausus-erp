@@ -20,6 +20,10 @@ class ExpenseSummary extends Page
 
     protected static ?string $navigationLabel = 'Synthèse des dépenses';
 
+    protected static ?string $title = 'Synthèse des dépenses';
+
+    protected ?string $heading = 'Synthèse des dépenses';
+
     protected static string $view = 'filament.pages.expense-summary';
 
     protected static ?int $navigationSort = 3;

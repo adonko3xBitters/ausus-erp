@@ -16,6 +16,10 @@ class IncomeStatement extends Page
 
     protected static ?string $navigationLabel = 'Compte de résultat';
 
+    protected static ?string $title = 'Compte de résultat';
+
+    protected ?string $heading = 'Compte de résultat';
+
     protected static string $view = 'filament.pages.income-statement';
 
     protected static ?int $navigationSort = 3;

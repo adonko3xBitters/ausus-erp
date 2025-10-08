@@ -20,6 +20,10 @@ class TrialBalance extends Page
 
     protected static ?string $navigationLabel = 'Balance générale';
 
+    protected static ?string $title = 'Balance générale';
+
+    protected ?string $heading = 'Balance générale';
+
     protected static string $view = 'filament.pages.trial-balance';
 
     protected static ?int $navigationSort = 1;
