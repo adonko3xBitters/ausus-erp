@@ -15,6 +15,10 @@ class BalanceSheet extends Page
 
     protected static ?string $navigationLabel = 'Bilan comptable';
 
+    protected static ?string $title = 'Bilan comptable';
+
+    protected ?string $heading = 'Bilan comptable';
+
     protected static string $view = 'filament.pages.balance-sheet';
 
     protected static ?int $navigationSort = 4;

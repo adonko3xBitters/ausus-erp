@@ -13,6 +13,7 @@ use App\Models\User;
 use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
+use Devonab\FilamentEasyFooter\EasyFooterPlugin;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -121,6 +122,20 @@ class AdminPanelProvider extends PanelProvider
                     ->users(fn () => User::pluck('email', 'name')->toArray()),
 
                 Lockscreen::make(),
+
+                EasyFooterPlugin::make()
+                    ->footerEnabled()
+                    ->withFooterPosition('footer')
+                    // ->withLoadTime()
+                    ->withGithub()
+                    ->withSentence('An atypical African ERP')
+                    ->withBorder()
+                    // ->withLinks([])
+                    ->withLogo(
+                        'https://filamentphp.com/favicon/favicon-32x32.png',
+                        'https://filamentphp.com',
+                        'Powered by FilamentPHP'
+                    ),
             ])
             ->navigationGroups([
                 'Configuration',

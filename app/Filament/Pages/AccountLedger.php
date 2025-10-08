@@ -19,6 +19,10 @@ class AccountLedger extends Page
 
     protected static ?string $navigationLabel = 'Grand livre';
 
+    protected static ?string $title = 'Grand livre';
+
+    protected ?string $heading = 'Grand livre';
+
     protected static string $view = 'filament.pages.account-ledger';
 
     protected static ?int $navigationSort = 2;

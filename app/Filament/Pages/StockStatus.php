@@ -24,6 +24,10 @@ class StockStatus extends Page implements HasTable
 
     protected static ?string $navigationLabel = 'État des stocks';
 
+    protected static ?string $title = 'État des stocks';
+
+    protected ?string $heading = 'État des stocks';
+
     protected static string $view = 'filament.pages.stock-status';
 
     protected static ?int $navigationSort = 7;

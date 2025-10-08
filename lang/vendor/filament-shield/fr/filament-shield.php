@@ -8,7 +8,7 @@ return [
     */
 
     'column.name' => 'Nom',
-    'column.guard_name' => 'Nom du Guard',
+    'column.guard_name' => 'Plateforme d\'accès',
     'column.roles' => 'Rôles',
     'column.permissions' => 'Permissions',
     'column.updated_at' => 'Mis à jour à',
@@ -20,7 +20,7 @@ return [
     */
 
     'field.name' => 'Nom',
-    'field.guard_name' => 'Nom du Guard',
+    'field.guard_name' => 'Plateforme d\'accès',
     'field.permissions' => 'Permissions',
     'field.select_all.name' => 'Tout sélectionner',
     'field.select_all.message' => 'Activer toutes les autorisations pour ce rôle',

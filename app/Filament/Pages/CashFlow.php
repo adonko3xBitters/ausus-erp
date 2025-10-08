@@ -15,6 +15,10 @@ class CashFlow extends Page
 
     protected static ?string $navigationLabel = 'Flux de trésorerie';
 
+    protected static ?string $title = 'Flux de trésorerie';
+
+    protected ?string $heading = 'Flux de trésorerie';
+
     protected static string $view = 'filament.pages.cash-flow';
 
     protected static ?int $navigationSort = 5;
